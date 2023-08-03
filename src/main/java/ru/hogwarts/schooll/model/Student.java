@@ -14,6 +14,9 @@ public class Student {
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
+    @ManyToOne
+    @JoinColumn(name = "avatar_id")
+    private Avatar avatar;
 
     public Student(Long id, String name, int age) {
         this.id = id;
