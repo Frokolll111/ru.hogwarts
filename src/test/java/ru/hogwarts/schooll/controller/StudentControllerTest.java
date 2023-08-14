@@ -30,19 +30,46 @@ public class StudentControllerTest {
 
     @Test
     public void defaultMessageTest() throws Exception {
+        Student studentTest = new Student();
+        HttpEntity<Student> httpStudent = new HttpEntity<>(studentTest);
+        ResponseEntity<Student> studentEntity = restTemplate.exchange(
+                "http://localhost:" + port + "/student",
+                HttpMethod.POST,
+                httpStudent,
+                Student.class
+        );
+        Assertions.assertThat(studentEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/student", String.class)).isNotNull();
     }
     @Test
     public void createStudentTest() throws Exception {
         Student studentTest = new Student();
+        HttpEntity<Student> httpStudent = new HttpEntity<>(studentTest);
         studentTest.setName("name1");
         studentTest.setAge(25);
+        ResponseEntity<Student> studentEntity = restTemplate.exchange(
+                "http://localhost:" + port + "/student",
+                HttpMethod.POST,
+                httpStudent,
+                Student.class
+        );
+        Assertions.assertThat(studentEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         String student = this.restTemplate.postForObject("http://localhost:" + port + "/student", studentTest, String.class);
         Assertions.assertThat(student).isNotNull();
     }
     @Test
     public void getStudentTest() throws  Exception {
+        Student studentTest = new Student();
+        HttpEntity<Student> httpStudent = new HttpEntity<>(studentTest);
         Assertions.assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/student", String.class)).isNotNull();
+        studentTest.setName("name1");
+        studentTest.setAge(25);
+        ResponseEntity<Student> studentEntity = restTemplate.exchange(
+                "http://localhost:" + port + "/id/",
+                HttpMethod.GET,
+                httpStudent,
+                Student.class
+        );
     }
     @Test
     public void updateStudentTest() throws Exception {
