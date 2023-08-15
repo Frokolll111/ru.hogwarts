@@ -1,19 +1,28 @@
 package ru.hogwarts.schooll.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 
 @Entity
 public class Avatar {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String filePath;
     private long fileSize;
     private String mediaType;
     @Lob
-    private byte[] data;
+    @Type(type = "org.hibernate.type.BinaryType")
+    private byte[] preview;
+    @JsonIgnore
     @OneToOne
+    @JoinColumn(name =  "student_id")
     private Student student;
+
+    public Avatar() {
+    }
 
     public Long getId() {
         return id;
@@ -47,12 +56,12 @@ public class Avatar {
         this.mediaType = mediaType;
     }
 
-    public byte[] getData() {
-        return data;
+    public byte[] getPreview() {
+        return preview;
     }
 
-    public void setData(byte[] data) {
-        this.data = data;
+    public void setPreview(byte[] data) {
+        this.preview = data;
     }
 
     public Student getStudent() {

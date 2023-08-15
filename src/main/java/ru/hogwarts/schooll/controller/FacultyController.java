@@ -22,7 +22,7 @@ public class FacultyController {
         return facultyService.createFaculty(faculty);
     }
 
-    @GetMapping("{idFaculty}")
+    @GetMapping("/id/{idFaculty}")
     public ResponseEntity<Faculty> readFaculty(@PathVariable long idFaculty) {
         Faculty faculty = facultyService.readFaculty(idFaculty);
         if (faculty == null) {
@@ -40,7 +40,7 @@ public class FacultyController {
         return ResponseEntity.ok(foundFaculty);
     }
 
-    @DeleteMapping("{idFaculty}")
+    @DeleteMapping("/{idFaculty}")
     public ResponseEntity deleteFaculty(@PathVariable long idFaculty) {
         facultyService.deleteFaculty(idFaculty);
         return ResponseEntity.ok().build();
@@ -51,9 +51,9 @@ public class FacultyController {
         return ResponseEntity.ok(facultyService.readAllFaculty());
     }
 
-    @GetMapping("{color}")
-    public ResponseEntity<Collection<Faculty>> colorFilterFaculty(@PathVariable String color) {
-        return ResponseEntity.ok((Collection<Faculty>) facultyService.colorFilterFaculty(color));
+    @GetMapping("/color/{color}")
+    public Faculty colorFilterFaculty(@PathVariable String color) {
+        return facultyService.colorFilterFaculty(color);
     }
 
     @GetMapping("findByColorOrName")

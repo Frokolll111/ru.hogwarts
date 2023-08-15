@@ -1,6 +1,7 @@
 package ru.hogwarts.schooll.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.schooll.model.Avatar;
@@ -14,26 +15,27 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
 @Transactional
 public class AvatarService {
-    @Value("$avatar.dir.path=$")
-    private String avatarDir;
-
     private final StudentService studentService;
     private final AvatarRepository avatarRepository;
+    private final String avatarsDir;
 
     public AvatarService(StudentService studentService,
-                         AvatarRepository avatarRepository) {
+                         AvatarRepository avatarRepository,
+                         @Value("${avatar.dir.path}") String avatarsDir) {
         this.studentService = studentService;
+        this.avatarsDir = avatarsDir;
         this.avatarRepository = avatarRepository;
     }
     public void uploadAvatar(Long idStudent, MultipartFile file) throws IOException {
         Student student = studentService.readStudent(idStudent);
-        Path filePath = Path.of(avatarDir, idStudent + "." + getExtension(file.getOriginalFilename()));
+        Path filePath = Path.of(avatarsDir, idStudent + "." + getExtension(file.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
         try (InputStream is = file.getInputStream();
@@ -48,7 +50,7 @@ public class AvatarService {
         avatar.setFilePath(filePath.toString());
         avatar.setFileSize(file.getSize());
         avatar.setMediaType(file.getContentType());
-        avatar.setData(generateImageData(filePath));
+        avatar.setPreview(generateImageData(filePath));
 
         avatarRepository.save(avatar);
     }
@@ -71,6 +73,10 @@ public class AvatarService {
     }
     public Avatar findAvatar(Long idStudent) {
         return avatarRepository.findByStudentId(idStudent).orElse((new Avatar()));
+    }
+    public List<Avatar> getAvatarPage(int pageNumber, int pageSize) {
+        var request = PageRequest.of(pageNumber, pageSize);
+        return avatarRepository.findAll(request).getContent();
     }
 
     private String getExtension(String filename) {
