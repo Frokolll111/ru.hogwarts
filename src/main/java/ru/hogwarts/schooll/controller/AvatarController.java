@@ -61,7 +61,6 @@ public class AvatarController {
             throw new RuntimeException(e);
         }
     }
-
     @GetMapping("/avatar")
     public List<Avatar> getPage(@RequestParam int page, @RequestParam int size) {
         return avatarService.getAvatarPage(page, size);
