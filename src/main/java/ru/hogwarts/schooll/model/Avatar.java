@@ -16,7 +16,6 @@ public class Avatar {
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] preview;
-    @JsonIgnore
     @OneToOne
     @JoinColumn(name =  "student_id")
     private Student student;

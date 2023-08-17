@@ -12,7 +12,6 @@ public class Faculty {
     private Long id;
     private String name;
     private String color;
-    @JsonIgnore
     @OneToMany(mappedBy = "faculty", fetch = FetchType.LAZY)
     private Collection<Student> student;
 
