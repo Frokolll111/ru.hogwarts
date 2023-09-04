@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/student")
@@ -81,5 +82,20 @@ public class StudentController {
     @GetMapping("/last")
     public Collection<Student> last() {
         return studentService.getLastStudent();
+    }
+
+    @GetMapping("/name/sort")
+    public List<String> sortStudent() {
+        return studentService.sortStudent();
+    }
+
+    @GetMapping("/name/sort/chars {chars}")
+    public List<String> sortStudentChars(@PathVariable Character chars) {
+        return studentService.sortStudentChars(chars);
+    }
+
+    @GetMapping("/average")
+    public double averageAgeStudent() {
+        return studentService.averageAgeStudent();
     }
 }

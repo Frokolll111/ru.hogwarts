@@ -8,7 +8,9 @@ import ru.hogwarts.schooll.model.Student;
 import ru.hogwarts.schooll.repositories.StudentRepository;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -69,5 +71,29 @@ public class StudentService {
     public List<Student> getLastStudent() {
         logger.info("Invoked getLastStudent student method");
         return studentRepository.getLastStudent();
+    }
+
+    public List<String> sortStudent() {
+        logger.info("Invoked sortStudent student method");
+        return studentRepository.findAll().stream()
+                .sorted(Comparator.comparing(Student::getName))
+                .map(n -> n.getName().toLowerCase())
+                .collect(Collectors.toList());
+    }
+
+    public List<String> sortStudentChars(Character chars) {
+        logger.info("Invoked sortStudentChars by chars method with argument {} ", chars);
+        return studentRepository.findAll().stream()
+                .filter(n->n.getName().charAt(0) == chars)
+                .map(n->n.getName().toLowerCase())
+                .collect(Collectors.toList());
+    }
+
+    public double averageAgeStudent() {
+        logger.info("Invoked averageAgeStudent student method");
+        return studentRepository.findAll().stream()
+                .mapToInt(Student::getAge)
+                .average()
+                .orElse(0.0);
     }
 }

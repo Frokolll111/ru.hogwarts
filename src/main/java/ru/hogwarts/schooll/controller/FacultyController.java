@@ -7,6 +7,7 @@ import ru.hogwarts.schooll.model.Faculty;
 import ru.hogwarts.schooll.service.FacultyService;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("faculty")
@@ -62,4 +63,13 @@ public class FacultyController {
         return facultyService.findByColorOrName(color, name);
     }
 
+    @GetMapping("/longNameFaculty")
+    public Optional<String> longNameFaculty() {
+        return facultyService.longNameFaculty();
+    }
+
+    @GetMapping("/number")
+    public Integer number() {
+        return facultyService.number();
+    }
 }

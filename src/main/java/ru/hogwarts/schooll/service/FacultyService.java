@@ -7,6 +7,9 @@ import ru.hogwarts.schooll.model.Faculty;
 import ru.hogwarts.schooll.repositories.FacultyRepository;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class FacultyService {
@@ -51,5 +54,22 @@ public class FacultyService {
     public Collection<Faculty> findByColorOrName(String color, String name) {
         logger.info("Invoker findByColorOrName faculty method with argument color {} and name {}",color,name);
         return facultyRepository.findAllByColorOrNameIgnoreCase(color, name);
+    }
+
+    public Optional<String> longNameFaculty() {
+        logger.info("Invoked longNameFaculty faculty method" );
+        return facultyRepository.findAll().stream()
+                .map(Faculty::getName)
+                .max(Comparator.comparing(String::length));
+    }
+
+    public Integer number() {
+        logger.info("Invoked number faculty method ");
+        long start = System.currentTimeMillis();
+        Integer sum = Stream.iterate(1, a -> a + 1)
+                .limit(1_000_000)
+                .reduce(0, (a, b) -> a + b);
+        System.out.println(System.currentTimeMillis() - start);
+        return sum;
     }
 }
