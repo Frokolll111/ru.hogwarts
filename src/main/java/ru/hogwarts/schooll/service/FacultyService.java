@@ -63,10 +63,11 @@ public class FacultyService {
                 .max(Comparator.comparing(String::length));
     }
 
-    public Integer number() {
+    public Integer number() {    //последовательное выполнение - 22 мс, паралельное выполнение - 8мс
         logger.info("Invoked number faculty method ");
         long start = System.currentTimeMillis();
         Integer sum = Stream.iterate(1, a -> a + 1)
+                .parallel()
                 .limit(1_000_000)
                 .reduce(0, (a, b) -> a + b);
         System.out.println(System.currentTimeMillis() - start);
