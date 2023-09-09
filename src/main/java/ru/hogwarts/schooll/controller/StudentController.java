@@ -98,4 +98,14 @@ public class StudentController {
     public double averageAgeStudent() {
         return studentService.averageAgeStudent();
     }
+
+    @GetMapping("/thread")
+    public void printStudent() {
+        studentService.printStudent();
+    }
+
+    @GetMapping("/thread/synchronized")
+    public void printStudentSynchronized() {
+        studentService.printStudentSynchronized();
+    }
 }

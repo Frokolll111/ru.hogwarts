@@ -1,5 +1,6 @@
 package ru.hogwarts.schooll.service;
 
+import liquibase.pro.packaged.S;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,5 +96,54 @@ public class StudentService {
                 .mapToInt(Student::getAge)
                 .average()
                 .orElse(0.0);
+    }
+
+    private void  print (Student student) {
+        try {
+            Thread.sleep(3000);
+            System.out.println(student);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void printStudent() {
+        List<Student> students = studentRepository.findAll();
+        print(students.get(0));
+        print(students.get(1));
+
+        new Thread(() -> {
+            print(students.get(2));
+            print(students.get(3));
+        }).start();
+
+        new Thread(() -> {
+            print(students.get(4));
+            print(students.get(5));
+        }).start();
+    }
+
+    private synchronized void printSynchronized(Student student) {
+        try {
+            Thread.sleep(3000);
+            System.out.println(student);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void printStudentSynchronized() {
+        List<Student> students = studentRepository.findAll();
+        printSynchronized(students.get(0));
+        printSynchronized(students.get(1));
+
+        new Thread(() -> {
+            printSynchronized(students.get(2));
+            printSynchronized(students.get(3));
+        }).start();
+
+        new Thread(() -> {
+            printSynchronized(students.get(4));
+            printSynchronized(students.get(5));
+        }).start();
     }
 }
