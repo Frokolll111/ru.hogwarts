@@ -1,0 +1,93 @@
+package ru.hogwarts.schooll.service;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import ru.hogwarts.schooll.model.Avatar;
+import ru.hogwarts.schooll.model.Student;
+import ru.hogwarts.schooll.repositories.AvatarRepository;
+
+import javax.imageio.ImageIO;
+import javax.transaction.Transactional;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+
+@Service
+@Transactional
+public class AvatarService {
+    private final static Logger logger = LoggerFactory.getLogger(AvatarService.class);
+    private final StudentService studentService;
+    private final AvatarRepository avatarRepository;
+    private final String avatarsDir;
+
+    public AvatarService(StudentService studentService,
+                         AvatarRepository avatarRepository,
+                         @Value("${avatar.dir.path}") String avatarsDir) {
+        this.studentService = studentService;
+        this.avatarsDir = avatarsDir;
+        this.avatarRepository = avatarRepository;
+    }
+    public void uploadAvatar(Long idStudent, MultipartFile file) throws IOException {
+        logger.info("Invoked upload avatar by id with argument {}",idStudent);
+        Student student = studentService.readStudent(idStudent);
+        Path filePath = Path.of(avatarsDir, idStudent + "." + getExtension(file.getOriginalFilename()));
+        Files.createDirectories(filePath.getParent());
+        Files.deleteIfExists(filePath);
+        try (InputStream is = file.getInputStream();
+             OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
+             BufferedInputStream bis = new BufferedInputStream(is, 1024);
+             BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
+        ) {
+            bis.transferTo(bos);
+        }
+        Avatar avatar = findAvatar(idStudent);
+        avatar.setStudent(student);
+        avatar.setFilePath(filePath.toString());
+        avatar.setFileSize(file.getSize());
+        avatar.setMediaType(file.getContentType());
+        avatar.setPreview(generateImageData(filePath));
+
+        avatarRepository.save(avatar);
+    }
+
+    private byte[] generateImageData(Path filePath) throws IOException {
+        logger.info("Invoked generateImageData avatar with argument {}",filePath);
+        try (InputStream is = Files.newInputStream(filePath);
+             BufferedInputStream bis = new BufferedInputStream(is, 1024);
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            BufferedImage image = ImageIO.read(bis);
+
+            int height = image.getHeight() / (image.getWidth() / 100);
+            BufferedImage preview = new BufferedImage(100, height, image.getType());
+            Graphics2D graphics = preview.createGraphics();
+            graphics.drawImage(image,0,0,100,height,null);
+            graphics.dispose();
+
+            ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
+            return baos.toByteArray();
+        }
+    }
+    public Avatar findAvatar(Long idStudent) {
+        logger.info("Invoked find avatar by id with argument {}",idStudent);
+        return avatarRepository.findByStudentId(idStudent).orElse((new Avatar()));
+    }
+    public List<Avatar> getAvatarPage(int pageNumber, int pageSize) {
+        logger.info("Invoker getAvatarPage avatar method with argument pageNumber {} and pageSize {}",pageNumber,pageSize);
+        var request = PageRequest.of(pageNumber, pageSize);
+        return avatarRepository.findAll(request).getContent();
+    }
+
+    private String getExtension(String filename) {
+        logger.info("Invoked getExtension avatar with argument {}",filename);
+        return filename.substring(filename.lastIndexOf(".") + 1);
+    }
+}
